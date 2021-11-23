@@ -27,7 +27,7 @@ install_requires = [
 
 setup_kwargs = setup(
     name="flask-strip-whitespace",
-    version="0.0.1",
+    version="0.0.2",
     description="A powerful HTML whitespace remover for Flask",
     long_description=long_description,
     author="baseplate-admin",
