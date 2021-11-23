@@ -30,7 +30,6 @@ Why use "flask_stip_whitespace" ?
 *   It can automagically minify inline CSS, JS.
 *   Removes <!--prettier-ignore--> from HTML.
 *   It speeds up website by reducing the HTML size.
-*   Drop in replacement for django.gzip.GzipMiddleware.
 *   It compiles regex at runtime. So it's blazing fast.
 *   Its mostly based on C ( gzip ) and Rust ( `minify-html <https://pypi.org/project/minify-html/>`__  ) libraries.
 *   Significantly lower bytes transferred when working with frameworks like AlpineJs ( Almost fully working & Please open a issue in the `Issue Tracker <https://github.com/baseplate-admin/flask_strip_whitespace/issues>`__ if you encounter any bug) & Petite Vue.
