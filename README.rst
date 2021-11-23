@@ -158,9 +158,8 @@ To customize ignored path:
 
     .. code-block:: python
         
-        # settings.py
 
-        STRIP_WHITESPACE_MINIFY_IGNORED_PATHS.append("/robots.txt") # Note that STRIP_WHITESPACE_MINIFY_IGNORED_PATHS is a Python List
+        app.config['STRIP_WHITESPACE_MINIFY_IGNORED_PATHS'].append("/robots.txt") # Note that STRIP_WHITESPACE_MINIFY_IGNORED_PATHS is a Python List
 
 Change NBSP Mangle Character :
 ------------------------------
