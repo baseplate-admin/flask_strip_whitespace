@@ -81,6 +81,7 @@ Install with pip from github ( Development | Not Recommended for Production )::
 Then include it in your flask project:
    
    .. code-block:: python
+   
         from flask_strip_whitespace.middlewares import HTMLStripWhiteSpaceMiddleware
 
         app = Flask(__name__)

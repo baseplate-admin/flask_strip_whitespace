@@ -7,7 +7,7 @@ long_description = (pathlib.Path(__file__).parent.resolve() / "README.rst").read
 )
 
 packages = [
-    "strip_whitespace.middlewares",
+    "flask_strip_whitespace.middlewares",
 ]
 
 
@@ -27,7 +27,7 @@ install_requires = [
 
 setup_kwargs = setup(
     name="flask-strip-whitespace",
-    version="0.2.3",
+    version="0.0.1",
     description="A powerful HTML whitespace remover for Flask",
     long_description=long_description,
     author="baseplate-admin",
