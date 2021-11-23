@@ -120,9 +120,7 @@ For example:
 
     .. code-block:: python
 
-        # settings.py
-
-        STRIP_WHITESPACE_RUST_DO_NOT_MINIFY_DOCTYPE = False
+        app.config['STRIP_WHITESPACE_RUST_DO_NOT_MINIFY_DOCTYPE'] = False
 
 Python :
 ~~~~~~~~
@@ -147,9 +145,7 @@ For example:
 
     .. code-block:: python
 
-        # settings.py
-
-        STRIP_WHITESPACE_PYTHON_REMOVE_COMMENTS = True 
+        app.config['STRIP_WHITESPACE_PYTHON_REMOVE_COMMENTS'] = True 
 
 Change Ignored Paths :
 ----------------------
@@ -162,9 +158,8 @@ To customize ignored path:
 
     .. code-block:: python
         
-        # settings.py
 
-        STRIP_WHITESPACE_MINIFY_IGNORED_PATHS.append("/robots.txt") # Note that STRIP_WHITESPACE_MINIFY_IGNORED_PATHS is a Python List
+        app.config['STRIP_WHITESPACE_MINIFY_IGNORED_PATHS'].append("/robots.txt") # Note that STRIP_WHITESPACE_MINIFY_IGNORED_PATHS is a Python List
 
 Change NBSP Mangle Character :
 ------------------------------
@@ -182,7 +177,7 @@ To change &nbsp; mangle character:
         # If you make it long,
         # the python str.replace() method will use more CPU and RAM thus slowing your site down.
         
-        app.["STRIP_WHITESPACE_NBSP_MANGLE_CHARACTER"] = 'ga' # Note that STRIP_WHITESPACE_NBSP_MANGLE_CHARACTER is a python string
+        app.config["STRIP_WHITESPACE_NBSP_MANGLE_CHARACTER"] = 'ga' # Note that STRIP_WHITESPACE_NBSP_MANGLE_CHARACTER is a python string
 
 Change Compression Settings :
 -----------------------------
@@ -194,7 +189,7 @@ To change the compression algorithm ( by default using 'gzip' because it's a pyt
       
       # envrion
 
-      'app["STRIP_WHITESPACE_COMPRESSION_ALGORITHM"] = "gzip" or "br" or "zstd" or "plain"
+      app.config["STRIP_WHITESPACE_COMPRESSION_ALGORITHM"] = "gzip" or "br" or "zstd" or "plain"
       
 
 Contributing :
