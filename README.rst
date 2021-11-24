@@ -33,7 +33,7 @@ Why use "flask_stip_whitespace" ?
 *   It compiles regex at runtime. So it's blazing fast.
 *   Its mostly based on C ( gzip ) and Rust ( `minify-html <https://pypi.org/project/minify-html/>`__  ) libraries.
 *   Significantly lower bytes transferred when working with frameworks like AlpineJs ( Almost fully working & Please open a issue in the `Issue Tracker <https://github.com/baseplate-admin/flask_strip_whitespace/issues>`__ if you encounter any bug) & Petite Vue.
-*   Is very customizable. ( You can configure lower level `minify-html <https://github.com/wilsonzlin/minify-html/blob/master/python/src/lib.template.rs/>`_ rust bindings and also the lower level `python <https://github.com/juancarlospaco/css-html-js-minify/blob/master/css_html_js_minify/html_minifier.py/>`_ bindings from settings.py )
+*   Is very customizable. ( You can configure lower level `minify-html <https://github.com/wilsonzlin/minify-html/blob/master/python/src/lib.template.rs/>`_ rust bindings and also the lower level `python <https://github.com/juancarlospaco/css-html-js-minify/blob/master/css_html_js_minify/html_minifier.py/>`_ bindings from flask's configuration )
 
 
 Why souldn't you use "flask_stip_whitespace" ?
@@ -81,11 +81,14 @@ Install with pip from github ( Development | Not Recommended for Production )::
 Then include it in your flask project:
    
    .. code-block:: python
-   
         from flask_strip_whitespace.middlewares import HTMLStripWhiteSpaceMiddleware
+        
+        # Declare a dictionary to store config. 
+        # Note that this dictionary must be called before adding wsgi middleware.
+        STRIP_WHITESPACE_CONFIG : dict = {}
 
         app = Flask(__name__)
-        app.wsgi_app = HTMLStripWhiteSpaceMiddleware(app.wsgi_app)
+        app.wsgi_app = HTMLStripWhiteSpaceMiddleware(app.wsgi_app, config={}) # Note that config is a dictionary 
 
 Customization :
 ===============
@@ -114,13 +117,13 @@ The bindings are ( by default set to True ):
         STRIP_WHITESPACE_RUST_REMOVE_BANGS, # passes remove_bangs to minify-html
         STRIP_WHITESPACE_RUST_REMOVE_PROCESSING_INSTRUCTIONS, # passes remove_processing_instructions to minify-html
 
-If you would like to change any of the above variables, simply put them in settings.py ( Please note that every variable here is a python boolean ).
+If you would like to change any of the above variables, simply put them in STRIP_WHITESPACE_CONFIG ( Please note that every variable here is a python boolean ).
 
 For example:
 
     .. code-block:: python
-
-        app.config['STRIP_WHITESPACE_RUST_DO_NOT_MINIFY_DOCTYPE'] = False
+         
+        STRIP_WHITESPACE_CONFIG['STRIP_WHITESPACE_RUST_DO_NOT_MINIFY_DOCTYPE'] = False
 
 Python :
 ~~~~~~~~
@@ -139,13 +142,13 @@ The bindings are ( by default set to a sane value ):
         STRIP_WHITESPACE_PYTHON_UNQUOTE_HTML_ATTRIBUTES, # True | This is also a magic module.
        
 
-If you would like to change any of the above variables, simply put them in settings.py ( Please note that every variable here is a python boolean )
+If you would like to change any of the above variables, simply put them in STRIP_WHITESPACE_CONFIG ( Please note that every variable here is a python boolean )
 
 For example:
 
     .. code-block:: python
 
-        app.config['STRIP_WHITESPACE_PYTHON_REMOVE_COMMENTS'] = True 
+        STRIP_WHITESPACE_CONFIG['STRIP_WHITESPACE_PYTHON_REMOVE_COMMENTS'] = True
 
 Change Ignored Paths :
 ----------------------
@@ -159,14 +162,14 @@ To customize ignored path:
     .. code-block:: python
         
 
-        app.config['STRIP_WHITESPACE_MINIFY_IGNORED_PATHS'].append("/robots.txt") # Note that STRIP_WHITESPACE_MINIFY_IGNORED_PATHS is a Python List
+        STRIP_WHITESPACE_CONFIG['STRIP_WHITESPACE_MINIFY_IGNORED_PATHS'].append("/robots.txt") # Note that STRIP_WHITESPACE_MINIFY_IGNORED_PATHS is a Python List
 
 Change NBSP Mangle Character :
 ------------------------------
 
 This module first replaces the &nbsp; character from html with a character. 
 For example &nbsp; becomes 'অ' ( I picked 'অ' because its a foreign character and not many sites use the character like this 'অ' ).
-If for some reason this character is causing problem in your HTML. You can change this from settings.py .
+If for some reason this character is causing problem in your HTML. You can change this from STRIP_WHITESPACE_CONFIG .
 
 To change &nbsp; mangle character:
 
@@ -177,7 +180,7 @@ To change &nbsp; mangle character:
         # If you make it long,
         # the python str.replace() method will use more CPU and RAM thus slowing your site down.
         
-        app.config["STRIP_WHITESPACE_NBSP_MANGLE_CHARACTER"] = 'ga' # Note that STRIP_WHITESPACE_NBSP_MANGLE_CHARACTER is a python string
+        STRIP_WHITESPACE_CONFIG["STRIP_WHITESPACE_NBSP_MANGLE_CHARACTER"] = 'ga' # Note that STRIP_WHITESPACE_NBSP_MANGLE_CHARACTER is a python string
 
 Change Compression Settings :
 -----------------------------
@@ -189,7 +192,7 @@ To change the compression algorithm ( by default using 'gzip' because it's a pyt
       
       # envrion
 
-      app.config["STRIP_WHITESPACE_COMPRESSION_ALGORITHM"] = "gzip" or "br" or "zstd" or "plain"
+      STRIP_WHITESPACE_CONFIG["STRIP_WHITESPACE_COMPRESSION_ALGORITHM"] = "gzip" or "br" or "zstd" or "plain"
       
 
 Contributing :
