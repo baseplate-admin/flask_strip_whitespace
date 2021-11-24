@@ -28,7 +28,7 @@ class HTMLStripWhiteSpaceMiddleware(object):
     def __init__(
         self,
         app,
-        config: Optional[Dict[str, bool | str]] = {},
+        config: Optional[Dict[str, bool or str]] = {},
     ) -> None:
         self.app = app
 
@@ -100,30 +100,31 @@ class HTMLStripWhiteSpaceMiddleware(object):
             str("compressed"), str("decompressed")
         ] = config.get("STRIP_WHITESPACE_COMPRESSION_TYPE", str("decompressed"))
 
-        self.STRIP_WHITESPACE_COMPRESSION_ALGORITHM: Union[
-            str("gzip"), str("br"), str("zstd"), str("plain")
-        ] = config.get(
+        self.STRIP_WHITESPACE_COMPRESSION_ALGORITHM: str("gzip") or str("br") or str(
+            "zstd"
+        ) or str("plain") = config.get(
             "STRIP_WHITESPACE_COMPRESSION_ALGORITHM",
-            str(
-                "gzip",  # By default set it to GZ because its a python stdlib
-            ),
+            str("gzip"),  # By default set it to GZ because its a python stdlib
         )
 
-    def __compress__(
-        self,
-        buffer: bytes,
-    ) -> bytes:
+    def __compress__(self, buffer: bytes) -> bytes:
 
+        algorithm = self.STRIP_WHITESPACE_COMPRESSION_ALGORITHM
+        # HTML should always be sent in bytes 🔢
         return_buffer: bytes = b""
 
-        if self.STRIP_WHITESPACE_COMPRESSION_ALGORITHM == str("plain"):
+        if algorithm == str("plain"):
+            """
+            If algorithm is text/plain don't do anything 🤷‍♂️
+            """
             return_buffer = buffer
 
-        elif self.STRIP_WHITESPACE_COMPRESSION_ALGORITHM == str("gzip"):
+        elif algorithm == str("gzip"):
             try:
                 from python_strip_whitespace.functions.compressors.gzip import (
                     compress as gz_compress,
                 )
+
             except ImportError:
                 raise ImportError(
                     """
@@ -138,11 +139,12 @@ class HTMLStripWhiteSpaceMiddleware(object):
 
             return_buffer = gz_compress(buffer)
 
-        elif self.STRIP_WHITESPACE_COMPRESSION_ALGORITHM == str("br"):
+        elif algorithm == str("br"):
             try:
                 from python_strip_whitespace.functions.compressors.brotli import (
                     compress as br_compress,
                 )
+
             except ImportError:
                 raise ImportError(
                     """
@@ -157,12 +159,12 @@ class HTMLStripWhiteSpaceMiddleware(object):
 
             return_buffer = br_compress(buffer)
 
-        elif self.STRIP_WHITESPACE_COMPRESSION_ALGORITHM == str("zstd"):
-
+        elif algorithm == str("zstd"):
             try:
                 from python_strip_whitespace.functions.compressors.zstd import (
                     compress as zstd_compress,
                 )
+
             except ImportError:
                 raise ImportError(
                     """
@@ -172,12 +174,24 @@ class HTMLStripWhiteSpaceMiddleware(object):
                         
                         If not install it by:
                             python -m pip install python_strip_whitespace
-                """
+                    """
                 )
 
             return_buffer = zstd_compress(buffer)
         else:
-            raise AttributeError
+            raise AttributeError(
+                f"""
+                
+                Error in 'strip_whitespace.middlewares.functions.compress_according_to_algorithm_choice'
+                        Compression algorithm not any of these:
+                            |> str("gzip")
+                            |> str("br")
+                            |> str("zstd")
+                            |> str("plain")
+
+                        Currently the Algorithm is : { algorithm }
+                """
+            )
 
         return return_buffer
 
@@ -185,12 +199,17 @@ class HTMLStripWhiteSpaceMiddleware(object):
         self.request: Request = Request(environ)
 
         def custom_start_response(status, headers, exc_info=None):
+
+            algorithm = self.STRIP_WHITESPACE_COMPRESSION_ALGORITHM
             accepted_encodings = self.request.headers.get(
                 "Accept-Encoding", ""  # Has gzip, deflate by default
             )
 
-            if self.STRIP_WHITESPACE_COMPRESSION_ALGORITHM == str("plain"):
-                # If algorithm is text/plain rdon't do anything
+            if algorithm == str("plain"):
+                """
+                If algorithm is text/plain don't do anything 🤷‍♂️
+                """
+
                 headers.append(
                     (
                         "Content-Encoding",
@@ -198,29 +217,49 @@ class HTMLStripWhiteSpaceMiddleware(object):
                     )
                 )
 
-            elif (
-                self.STRIP_WHITESPACE_COMPRESSION_ALGORITHM != str("plain")
-                and self.STRIP_WHITESPACE_COMPRESSION_ALGORITHM in accepted_encodings
-            ):
+            elif algorithm != str("plain") and algorithm in accepted_encodings:
+                """
+                Developer has chosen an algorithm that's not accepted by the browser.
+                    So do as the developer says 😄
+                """
+
                 headers.append(
                     (
                         "Content-Encoding",
                         str(self.STRIP_WHITESPACE_COMPRESSION_ALGORITHM),
                     )
                 )
+            elif algorithm != str("plain") and algorithm not in accepted_encodings:
+                """
+                Developer has chosen an algorithm that's not accepted by the browser. 🤦‍♂️
+                    So raise an error and explain the error.
+                """
 
-            else:
                 raise ValueError(
                     f"""
-                    'algorithm' in 'strip_whitespace.add_header' must be one of these four.
-                        1. gzip
-                        2. br ( Brotli )
-                        3. zstd ( ZStandard )
-                        4. plain ( Decompressed HTML )
+                    Error in 'strip_whitespace.middlewares.functions.add_headers'
 
-                    Currently algorithm is: { self.STRIP_WHITESPACE_COMPRESSION_ALGORITHM }
+                        Accepted HTTP ENCODING = { accepted_encodings }
+
+                            Please switch { algorithm } to any of these : { accepted_encodings } in settings.py
+                """
+                )
+
+            else:
+                # Something crazy is going on here. 😱 ( There might be ghosts lurking around here 👀 )
+
+                raise ValueError(
+                    f"""
+                        'algorithm' in 'strip_whitespace.add_header' must be one of these:
+                            |> gzip
+                            |> br ( Brotli )
+                            |> zstd ( ZStandard )
+                            |> plain ( Decompressed HTML )
+
+                        Currently the algorithm is: { algorithm }
                     """
                 )
+
             return start_response(status, headers, exc_info)
 
         self.app_iter = self.app(environ, custom_start_response)
