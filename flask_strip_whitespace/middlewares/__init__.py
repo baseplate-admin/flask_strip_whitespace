@@ -19,7 +19,7 @@ except ImportError:
         """
     )
 
-from typing import Dict, Optional, Union
+from typing import Dict, List, Optional, Union
 from werkzeug.wrappers import Request, Response
 from flask import current_app
 
@@ -28,7 +28,7 @@ class HTMLStripWhiteSpaceMiddleware(object):
     def __init__(
         self,
         app,
-        config: Optional[Dict[str, bool or str]] = {},
+        config: Optional[Dict[str, bool | str | List[str]]] = {},
     ) -> None:
         self.app = app
 
@@ -38,6 +38,8 @@ class HTMLStripWhiteSpaceMiddleware(object):
         self.html = b""
 
         # Set Some modifiable variables
+
+        ## RUST
 
         self.STRIP_WHITESPACE_RUST_DO_NOT_MINIFY_DOCTYPE: bool = config.get(
             "STRIP_WHITESPACE_RUST_DO_NOT_MINIFY_DOCTYPE", True
@@ -70,7 +72,9 @@ class HTMLStripWhiteSpaceMiddleware(object):
         self.STRIP_WHITESPACE_RUST_REMOVE_PROCESSING_INSTRUCTIONS: bool = config.get(
             "STRIP_WHITESPACE_RUST_REMOVE_PROCESSING_INSTRUCTIONS", True
         )
-        # Python
+
+        ## Python
+
         self.STRIP_WHITESPACE_PYTHON_REMOVE_COMMENTS: bool = config.get(
             "STRIP_WHITESPACE_PYTHON_REMOVE_COMMENTS",
             False,  # We do it in Rust. No need to do it in python
@@ -90,11 +94,14 @@ class HTMLStripWhiteSpaceMiddleware(object):
         self.STRIP_WHITESPACE_PYTHON_UNQUOTE_HTML_ATTRIBUTES: bool = config.get(
             "STRIP_WHITESPACE_PYTHON_UNQUOTE_HTML_ATTRIBUTES", True
         )
-        # NBSP char
+
+        ## NBSP char
+
         self.STRIP_WHITESPACE_NBSP_MANGLE_CHARACTER: str = config.get(
             "STRIP_WHITESPACE_NBSP_MANGLE_CHARACTER", "অ"
         )
-        # Compression Settings
+
+        ## Compression Settings
 
         self.STRIP_WHITESPACE_COMPRESSION_TYPE: Union[
             str("compressed"), str("decompressed")
@@ -105,6 +112,12 @@ class HTMLStripWhiteSpaceMiddleware(object):
         ) or str("plain") = config.get(
             "STRIP_WHITESPACE_COMPRESSION_ALGORITHM",
             str("gzip"),  # By default set it to GZ because its a python stdlib
+        )
+
+        ## Ignored paths
+
+        self.STRIP_WHITESPACE_MINIFY_IGNORED_PATHS: List = config.get(
+            "STRIP_WHITESPACE_COMPRESSION_ALGORITHM", []
         )
 
     def __compress__(self, buffer: bytes) -> bytes:
@@ -209,26 +222,32 @@ class HTMLStripWhiteSpaceMiddleware(object):
                 """
                 If algorithm is text/plain don't do anything 🤷‍♂️
                 """
-
-                headers.append(
-                    (
-                        "Content-Encoding",
-                        "text/plain; charset:utf-8",
+                if (
+                    environ["REQUEST_URI"]
+                    not in self.STRIP_WHITESPACE_MINIFY_IGNORED_PATHS
+                ):
+                    headers.append(
+                        (
+                            "Content-Encoding",
+                            "text/plain; charset:utf-8",
+                        )
                     )
-                )
 
             elif algorithm != str("plain") and algorithm in accepted_encodings:
                 """
                 Developer has chosen an algorithm that's not accepted by the browser.
                     So do as the developer says 😄
                 """
-
-                headers.append(
-                    (
-                        "Content-Encoding",
-                        str(self.STRIP_WHITESPACE_COMPRESSION_ALGORITHM),
+                if (
+                    environ["REQUEST_URI"]
+                    not in self.STRIP_WHITESPACE_MINIFY_IGNORED_PATHS
+                ):
+                    headers.append(
+                        (
+                            "Content-Encoding",
+                            str(self.STRIP_WHITESPACE_COMPRESSION_ALGORITHM),
+                        )
                     )
-                )
             elif algorithm != str("plain") and algorithm not in accepted_encodings:
                 """
                 Developer has chosen an algorithm that's not accepted by the browser. 🤦‍♂️
@@ -259,7 +278,6 @@ class HTMLStripWhiteSpaceMiddleware(object):
                         Currently the algorithm is: { algorithm }
                     """
                 )
-
             return start_response(status, headers, exc_info)
 
         self.app_iter = self.app(environ, custom_start_response)
@@ -289,6 +307,8 @@ class HTMLStripWhiteSpaceMiddleware(object):
             # Compression Settings
             self.STRIP_WHITESPACE_COMPRESSION_TYPE,
         )
-        body = self.__compress__(body)
+
+        if environ["REQUEST_URI"] not in self.STRIP_WHITESPACE_MINIFY_IGNORED_PATHS:
+            body = self.__compress__(body)
 
         return [body]
