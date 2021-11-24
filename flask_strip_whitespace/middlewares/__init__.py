@@ -117,7 +117,10 @@ class HTMLStripWhiteSpaceMiddleware(object):
         ## Ignored paths
 
         self.STRIP_WHITESPACE_MINIFY_IGNORED_PATHS: List = config.get(
-            "STRIP_WHITESPACE_COMPRESSION_ALGORITHM", []
+            "STRIP_WHITESPACE_COMPRESSION_ALGORITHM",
+            [
+                "/favicon.ico",
+            ],
         )
 
     def __compress__(self, buffer: bytes) -> bytes:
