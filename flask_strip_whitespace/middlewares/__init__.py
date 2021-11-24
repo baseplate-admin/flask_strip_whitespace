@@ -1,6 +1,13 @@
-# Thanks to
-# https://stackoverflow.com/questions/67563385/how-do-i-access-response-content-in-wsgi-middleware-for-flask
-# I got this middleware working
+from typing import (
+    Dict,
+    List,
+    Optional,
+    Union,
+)
+from werkzeug.wrappers import (
+    Request,
+    Response,
+)
 
 try:
     from python_strip_whitespace import minify_html
@@ -19,16 +26,12 @@ except ImportError:
         """
     )
 
-from typing import Dict, List, Optional, Union
-from werkzeug.wrappers import Request, Response
-from flask import current_app
+from .functions import compress
 
 
 class HTMLStripWhiteSpaceMiddleware(object):
     def __init__(
-        self,
-        app,
-        config: Optional[Dict[str, bool | str | List[str]]] = {},
+        self, app, config: Optional[Dict[str, bool | str | List[str]]] = {}
     ) -> None:
         self.app = app
 
@@ -38,7 +41,6 @@ class HTMLStripWhiteSpaceMiddleware(object):
         self.html = b""
 
         # Set Some modifiable variables
-
         ## RUST
 
         self.STRIP_WHITESPACE_RUST_DO_NOT_MINIFY_DOCTYPE: bool = config.get(
@@ -123,98 +125,10 @@ class HTMLStripWhiteSpaceMiddleware(object):
             ],
         )
 
-    def __compress__(self, buffer: bytes) -> bytes:
-
-        algorithm = self.STRIP_WHITESPACE_COMPRESSION_ALGORITHM
-        # HTML should always be sent in bytes 🔢
-        return_buffer: bytes = b""
-
-        if algorithm == str("plain"):
-            """
-            If algorithm is text/plain don't do anything 🤷‍♂️
-            """
-            return_buffer = buffer
-
-        elif algorithm == str("gzip"):
-            try:
-                from python_strip_whitespace.functions.compressors.gzip import (
-                    compress as gz_compress,
-                )
-
-            except ImportError:
-                raise ImportError(
-                    """
-                    'gz_compress' function is missing
-
-                        Did you install the latest python_strip_whitespace?
-                        
-                        If not install it by:
-                            python -m pip install python_strip_whitespace
-                    """
-                )
-
-            return_buffer = gz_compress(buffer)
-
-        elif algorithm == str("br"):
-            try:
-                from python_strip_whitespace.functions.compressors.brotli import (
-                    compress as br_compress,
-                )
-
-            except ImportError:
-                raise ImportError(
-                    """
-                    'br_compress' function is missing
-
-                        Did you install the latest python_strip_whitespace?
-                        
-                        If not install it by:
-                            python -m pip install python_strip_whitespace
-                    """
-                )
-
-            return_buffer = br_compress(buffer)
-
-        elif algorithm == str("zstd"):
-            try:
-                from python_strip_whitespace.functions.compressors.zstd import (
-                    compress as zstd_compress,
-                )
-
-            except ImportError:
-                raise ImportError(
-                    """
-                    'zstd_compress' function is missing
-
-                        Did you install the latest python_strip_whitespace?
-                        
-                        If not install it by:
-                            python -m pip install python_strip_whitespace
-                    """
-                )
-
-            return_buffer = zstd_compress(buffer)
-        else:
-            raise AttributeError(
-                f"""
-                
-                Error in 'strip_whitespace.middlewares.functions.compress_according_to_algorithm_choice'
-                        Compression algorithm not any of these:
-                            |> str("gzip")
-                            |> str("br")
-                            |> str("zstd")
-                            |> str("plain")
-
-                        Currently the Algorithm is : { algorithm }
-                """
-            )
-
-        return return_buffer
-
     def __call__(self, environ: dict, start_response) -> Response:
         self.request: Request = Request(environ)
 
-        def custom_start_response(status, headers, exc_info=None):
+        def add_headers(status, headers: Dict[str, str], exc_info=None):
 
             algorithm = self.STRIP_WHITESPACE_COMPRESSION_ALGORITHM
             accepted_encodings = self.request.headers.get(
@@ -283,7 +197,7 @@ class HTMLStripWhiteSpaceMiddleware(object):
                 )
             return start_response(status, headers, exc_info)
 
-        self.app_iter = self.app(environ, custom_start_response)
+        self.app_iter = self.app(environ, add_headers)
         self.html = b"".join(self.app_iter)
 
         body: bytes = minify_html(
@@ -312,6 +226,6 @@ class HTMLStripWhiteSpaceMiddleware(object):
         )
 
         if environ["REQUEST_URI"] not in self.STRIP_WHITESPACE_MINIFY_IGNORED_PATHS:
-            body = self.__compress__(body)
+            body = compress(body, self.STRIP_WHITESPACE_COMPRESSION_ALGORITHM)
 
         return [body]

@@ -8,6 +8,7 @@ long_description = (pathlib.Path(__file__).parent.resolve() / "README.rst").read
 
 packages = [
     "flask_strip_whitespace.middlewares",
+    "flask_strip_whitespace.middlewares.functions",
 ]
 
 
