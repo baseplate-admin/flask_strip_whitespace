@@ -49,7 +49,7 @@ Requirements :
 *    `python-strip-whitespace <https://github.com/baseplate-admin/python_strip_whitespace>`_
 *    Flask
 *    Python 3 ( Should work with all version? )
-*    Brotli ( or BrotliPy ) | ( Optional )
+*    Brotli ( or BrotliPy; pypy ) | ( Optional )
 *    ZSTD ( Optional ) 
 
 User guide :
