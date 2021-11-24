@@ -6,10 +6,10 @@ app = Flask(__name__)
 
 app.wsgi_app = HTMLStripWhiteSpaceMiddleware(
     app.wsgi_app,
-    # config={
-    #     "STRIP_WHITESPACE_RUST_MINIFY_CSS": False,
-    #     "STRIP_WHITESPACE_COMPRESSION_ALGORITHM": "plain",
-    # },
+    config={
+         "STRIP_WHITESPACE_RUST_MINIFY_CSS": False,
+         "STRIP_WHITESPACE_COMPRESSION_ALGORITHM": "plain",
+     },
 )
 
 
