@@ -1,13 +1,10 @@
 from typing import (
+    Any,
     Dict,
     List,
-    Optional,
     Union,
 )
-from werkzeug.wrappers import (
-    Request,
-    Response,
-)
+from werkzeug.wrappers import Request
 
 try:
     from python_strip_whitespace import minify_html
@@ -30,13 +27,11 @@ from .functions import compress
 
 
 class HTMLStripWhiteSpaceMiddleware(object):
-    def __init__(
-        self, app, config: Optional[Dict[str, bool | str | List[str]]] = {}
-    ) -> None:
+    def __init__(self, app, config: Dict[str, Any] = {}):
         self.app = app
 
         # Declare the variables that we need as None.
-        self.request: Request = None
+
         self.app_iter = None
         self.html = b""
 
@@ -100,18 +95,16 @@ class HTMLStripWhiteSpaceMiddleware(object):
         ## NBSP char
 
         self.STRIP_WHITESPACE_NBSP_MANGLE_CHARACTER: str = config.get(
-            "STRIP_WHITESPACE_NBSP_MANGLE_CHARACTER", "অ"
+            "STRIP_WHITESPACE_NBSP_MANGLE_CHARACTER", "'অ'"
         )
 
         ## Compression Settings
 
-        self.STRIP_WHITESPACE_COMPRESSION_TYPE: Union[
-            str("compressed"), str("decompressed")
-        ] = config.get("STRIP_WHITESPACE_COMPRESSION_TYPE", str("decompressed"))
+        self.STRIP_WHITESPACE_COMPRESSION_TYPE: str = config.get(
+            "STRIP_WHITESPACE_COMPRESSION_TYPE", str("decompressed")
+        )
 
-        self.STRIP_WHITESPACE_COMPRESSION_ALGORITHM: str("gzip") or str("br") or str(
-            "zstd"
-        ) or str("plain") = config.get(
+        self.STRIP_WHITESPACE_COMPRESSION_ALGORITHM: str = config.get(
             "STRIP_WHITESPACE_COMPRESSION_ALGORITHM",
             str("gzip"),  # By default set it to GZ because its a python stdlib
         )
@@ -125,13 +118,13 @@ class HTMLStripWhiteSpaceMiddleware(object):
             ],
         )
 
-    def __call__(self, environ: dict, start_response) -> Response:
-        self.request: Request = Request(environ)
+    def __call__(self, environ: dict, start_response) -> List[bytes]:
+        request: Request = Request(environ)
 
         def add_headers(status, headers: Dict[str, str], exc_info=None):
 
             algorithm = self.STRIP_WHITESPACE_COMPRESSION_ALGORITHM
-            accepted_encodings = self.request.headers.get(
+            accepted_encodings = request.headers.get(
                 "Accept-Encoding", ""  # Has gzip, deflate by default
             )
 
@@ -143,12 +136,7 @@ class HTMLStripWhiteSpaceMiddleware(object):
                     environ["REQUEST_URI"]
                     not in self.STRIP_WHITESPACE_MINIFY_IGNORED_PATHS
                 ):
-                    headers.append(
-                        (
-                            "Content-Encoding",
-                            "text/plain; charset:utf-8",
-                        )
-                    )
+                    headers["Content-Encoding"] = "text/plain; charset:utf-8"
 
             elif algorithm != str("plain") and algorithm in accepted_encodings:
                 """
@@ -159,12 +147,10 @@ class HTMLStripWhiteSpaceMiddleware(object):
                     environ["REQUEST_URI"]
                     not in self.STRIP_WHITESPACE_MINIFY_IGNORED_PATHS
                 ):
-                    headers.append(
-                        (
-                            "Content-Encoding",
-                            str(self.STRIP_WHITESPACE_COMPRESSION_ALGORITHM),
-                        )
+                    headers["Content-Encoding"] = str(
+                        self.STRIP_WHITESPACE_COMPRESSION_ALGORITHM
                     )
+
             elif algorithm != str("plain") and algorithm not in accepted_encodings:
                 """
                 Developer has chosen an algorithm that's not accepted by the browser. 🤦‍♂️
@@ -198,10 +184,10 @@ class HTMLStripWhiteSpaceMiddleware(object):
             return start_response(status, headers, exc_info)
 
         self.app_iter = self.app(environ, add_headers)
-        self.html = b"".join(self.app_iter)
+        html: Union[bytes, None] = self.app_iter
 
         body: bytes = minify_html(
-            self.html,
+            html,
             self.STRIP_WHITESPACE_RUST_DO_NOT_MINIFY_DOCTYPE,
             self.STRIP_WHITESPACE_RUST_ENSURE_SPEC_CONPLIANT_UNQUOTED_ATTRIBUTE_VALUES,
             self.STRIP_WHITESPACE_RUST_KEEP_CLOSING_TAGS,
