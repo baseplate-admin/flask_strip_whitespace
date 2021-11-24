@@ -81,6 +81,7 @@ Install with pip from github ( Development | Not Recommended for Production )::
 Then include it in your flask project:
    
    .. code-block:: python
+        
         from flask_strip_whitespace.middlewares import HTMLStripWhiteSpaceMiddleware
         
         # Declare a dictionary to store config. 
@@ -88,7 +89,7 @@ Then include it in your flask project:
         STRIP_WHITESPACE_CONFIG : dict = {}
 
         app = Flask(__name__)
-        app.wsgi_app = HTMLStripWhiteSpaceMiddleware(app.wsgi_app, config={}) # Note that config is a dictionary 
+        app.wsgi_app = HTMLStripWhiteSpaceMiddleware(app.wsgi_app, config=STRIP_WHITESPACE_CONFIG) # Note that config is a python dictionary 
 
 Customization :
 ===============
