@@ -80,16 +80,16 @@ Install with pip from github ( Development | Not Recommended for Production )::
 
 Then include it in your flask project:
    
-   .. code-block:: python
-        
-        from flask_strip_whitespace.middlewares import HTMLStripWhiteSpaceMiddleware
-        
-        # Declare a dictionary to store config. 
-        # Note that this dictionary must be called before adding wsgi middleware.
-        STRIP_WHITESPACE_CONFIG : dict = {}
+.. code-block:: python
 
-        app = Flask(__name__)
-        app.wsgi_app = HTMLStripWhiteSpaceMiddleware(app.wsgi_app, config=STRIP_WHITESPACE_CONFIG) # Note that config is a python dictionary 
+     from flask_strip_whitespace.middlewares import HTMLStripWhiteSpaceMiddleware
+
+     # Declare a dictionary to store config. 
+     # Note that this dictionary must be called before adding wsgi middleware.
+     STRIP_WHITESPACE_CONFIG : dict = {}
+
+     app = Flask(__name__)
+     app.wsgi_app = HTMLStripWhiteSpaceMiddleware(app.wsgi_app, config=STRIP_WHITESPACE_CONFIG) # Note that config is a python dictionary 
 
 Customization :
 ===============
@@ -105,24 +105,24 @@ The module allows `rust <https://github.com/wilsonzlin/minify-html>`_ minifier o
 
 The bindings are ( by default set to True ):
 
-    .. code-block:: python
+.. code-block:: python
 
-        STRIP_WHITESPACE_RUST_DO_NOT_MINIFY_DOCTYPE, # passes do_not_minify_doctype to minify-html
-        STRIP_WHITESPACE_RUST_ENSURE_SPEC_CONPLIANT_UNQUOTED_ATTRIBUTE_VALUES, # passes ensure_spec_compliant_unquoted_attribute_values to minify-html
-        STRIP_WHITESPACE_RUST_KEEP_CLOSING_TAGS, # passes keep_closing_tags to minify-html
-        STRIP_WHITESPACE_RUST_KEEP_COMMENTS, # passes keep_comments to minify-html
-        STRIP_WHITESPACE_RUST_KEEP_HTML_AND_HEAD_OPENING_TAGS, # passes keep_html_and_head_opening_tags to minify-html
-        STRIP_WHITESPACE_RUST_KEEP_SPACES_BETWEEN_ATTRIBUTES, # passes keep_spaces_between_attributes to minify-html
-        STRIP_WHITESPACE_RUST_MINIFY_CSS, # passes minify_css to minify-html
-        STRIP_WHITESPACE_RUST_MINIFY_JS, # passes minify_js to minify-html
-        STRIP_WHITESPACE_RUST_REMOVE_BANGS, # passes remove_bangs to minify-html
-        STRIP_WHITESPACE_RUST_REMOVE_PROCESSING_INSTRUCTIONS, # passes remove_processing_instructions to minify-html
+      STRIP_WHITESPACE_RUST_DO_NOT_MINIFY_DOCTYPE, # passes do_not_minify_doctype to minify-html
+      STRIP_WHITESPACE_RUST_ENSURE_SPEC_CONPLIANT_UNQUOTED_ATTRIBUTE_VALUES, # passes ensure_spec_compliant_unquoted_attribute_values to minify-html
+      STRIP_WHITESPACE_RUST_KEEP_CLOSING_TAGS, # passes keep_closing_tags to minify-html
+      STRIP_WHITESPACE_RUST_KEEP_COMMENTS, # passes keep_comments to minify-html
+      STRIP_WHITESPACE_RUST_KEEP_HTML_AND_HEAD_OPENING_TAGS, # passes keep_html_and_head_opening_tags to minify-html
+      STRIP_WHITESPACE_RUST_KEEP_SPACES_BETWEEN_ATTRIBUTES, # passes keep_spaces_between_attributes to minify-html
+      STRIP_WHITESPACE_RUST_MINIFY_CSS, # passes minify_css to minify-html
+      STRIP_WHITESPACE_RUST_MINIFY_JS, # passes minify_js to minify-html
+      STRIP_WHITESPACE_RUST_REMOVE_BANGS, # passes remove_bangs to minify-html
+      STRIP_WHITESPACE_RUST_REMOVE_PROCESSING_INSTRUCTIONS, # passes remove_processing_instructions to minify-html
 
 If you would like to change any of the above variables, simply put them in STRIP_WHITESPACE_CONFIG ( Please note that every variable here is a python boolean ).
 
 For example:
 
-    .. code-block:: python
+.. code-block:: python
          
         STRIP_WHITESPACE_CONFIG['STRIP_WHITESPACE_RUST_DO_NOT_MINIFY_DOCTYPE'] = False
 
@@ -133,7 +133,7 @@ The module allows python minifier options to be changed from Flasks's environ va
 
 The bindings are ( by default set to a sane value ):
 
-    .. code-block:: python
+.. code-block:: python
 
         STRIP_WHITESPACE_PYTHON_REMOVE_COMMENTS, # False | removes comments from HTML using python ( not recommended cause rust can do that just fine and fast )
         STRIP_WHITESPACE_PYTHON_CONDENSE_STYLE_FROM_HTML, # True | replaces '<style text/css>' -> '<style>'
@@ -147,7 +147,7 @@ If you would like to change any of the above variables, simply put them in STRIP
 
 For example:
 
-    .. code-block:: python
+.. code-block:: python
 
         STRIP_WHITESPACE_CONFIG['STRIP_WHITESPACE_PYTHON_REMOVE_COMMENTS'] = True
 
@@ -160,7 +160,7 @@ Then you can add it to ignored path. ( By default it ignores '/sitemap.xml' )
 
 To customize ignored path:
 
-    .. code-block:: python
+.. code-block:: python
         
 
         STRIP_WHITESPACE_CONFIG['STRIP_WHITESPACE_MINIFY_IGNORED_PATHS'].append("/robots.txt") # Note that STRIP_WHITESPACE_MINIFY_IGNORED_PATHS is a Python List
@@ -174,7 +174,7 @@ If for some reason this character is causing problem in your HTML. You can chang
 
 To change &nbsp; mangle character:
 
-    .. code-block:: python
+.. code-block:: python
 
 
         # Keep the string as  short as possible.
@@ -189,7 +189,7 @@ This module can do the work of compressing response to gzip. ( It can also do br
 
 To change the compression algorithm ( by default using 'gzip' because it's a python stdlib): 
    
-   .. code-block:: python
+.. code-block:: python
       
       # envrion
 
