@@ -36,7 +36,7 @@ Why use "flask_stip_whitespace" ?
 *   Is very customizable. ( You can configure lower level `minify-html <https://github.com/wilsonzlin/minify-html/blob/master/python/src/lib.template.rs/>`_ rust bindings and also the lower level `python <https://github.com/juancarlospaco/css-html-js-minify/blob/master/css_html_js_minify/html_minifier.py/>`_ bindings from flask's configuration )
 
 
-Why souldn't you use "flask_stip_whitespace" ?
+Why shouldn't you use "flask_stip_whitespace" ?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 *   You don't like having unnecessary ';;' in your HTML. ( If you know any regex to fix this please put a pull request )
 
