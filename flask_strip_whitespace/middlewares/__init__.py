@@ -25,11 +25,6 @@ class HTMLStripWhiteSpaceMiddleware(object):
     def __init__(self, app, config: Dict[str, Any] = {}):
         self.app = app
 
-        # Declare the variables that we need as None.
-
-        self.app_iter = None
-        self.html = b""
-
         # Set Some modifiable variables
         ## RUST
 
