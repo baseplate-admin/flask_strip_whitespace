@@ -297,14 +297,14 @@ test = ["appdirs (==1.4.4)", "covdefaults (>=2.2.2)", "pytest (>=7.2)", "pytest-
 
 [[package]]
 name = "python-strip-whitespace"
-version = "0.1.0"
+version = "0.1.1"
 description = "A powerful HTML whitespace remover for python"
 category = "main"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "python_strip_whitespace-0.1.0-py3-none-any.whl", hash = "sha256:c9d6d23e141487d52389c899cf4572deda1b10d26f8f943bc6c3eff7849438ce"},
-    {file = "python_strip_whitespace-0.1.0.tar.gz", hash = "sha256:1626c87b538769f947f6a8111b4cee900d66dbda221a88c31bb13a9d139081fa"},
+    {file = "python_strip_whitespace-0.1.1-py3-none-any.whl", hash = "sha256:74123155b2ab7f157511f8607139a977a4f338400704e27cb1150145bcb02ec8"},
+    {file = "python_strip_whitespace-0.1.1.tar.gz", hash = "sha256:aa4217675d2085b5aa5c7d619a9826d1995e63c238f2eb9538aa2e9a6a9792ec"},
 ]
 
 [package.dependencies]
