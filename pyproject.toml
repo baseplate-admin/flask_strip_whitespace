@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "A powerful HTML whitespace remover for Flask"
 authors = ["baseplate-admin <61817579+baseplate-admin@users.noreply.github.com>"]
 license = "GPLv3"
-readme = "README.md"
+readme = "README.rst"
 packages = [{include = "flask_strip_whitespace"}]
 
 [tool.poetry.dependencies]
